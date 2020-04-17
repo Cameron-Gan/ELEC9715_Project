@@ -86,14 +86,17 @@ class Dispatch(PackageInterface):
         current_time_floored = floor_ft(current_time, timedelta(minutes=30))
         search_time = current_time_floored - timedelta(minutes=5)
         previous_24hrs = search_time - timedelta(hours=24)
-        previous_24hr_string = previous_24hrs.strftime("%A,%B%#d,%Y%#I:%#M%p")
+        previous_24hrs_string = f'{previous_24hrs:%A},{previous_24hrs:%B}{previous_24hrs.day},{previous_24hrs:%Y}{previous_24hrs.month}:{previous_24hrs.minute}{previous_24hrs:%p}'
+
+        print(previous_24hrs_string)
 
         raw_text = requests.get(self.geturl())
         raw_text = raw_text.text.split(sep='<br>')
         index_of_start = 0
         for index, line in enumerate(raw_text):
             # print(line)
-            if re.search(previous_24hr_string, re.sub('\s*', '', line)):
+            if re.search(previous_24hrs_string, re.sub('\s*', '', line)):
+                print(line)
                 index_of_start = index
                 break
 
@@ -126,5 +129,6 @@ class Dispatch(PackageInterface):
 
 
 if __name__ == '__main__':
+    dispatch = Dispatch()
     pass
 
