@@ -14,6 +14,7 @@ class PackageInterface(ABC):
     def __init__(self):
         self.raw_data = None
 
+
     @abstractmethod
     def get_table(self, string):
         pass
@@ -30,6 +31,7 @@ class PackageInterface(ABC):
 
 
 class Predispatch(PackageInterface):
+
     tables = {}
 
     def __init__(self):
@@ -39,6 +41,7 @@ class Predispatch(PackageInterface):
 
     def get_raw_data(self):
         r = requests.get(self.geturl())
+
         r = r.text.split(sep="<br>")
         latest = r[len(r) - 2]
         most_recent = re.search(r'\"([^\"]*)\"', latest).group(1)
@@ -131,4 +134,5 @@ class Dispatch(PackageInterface):
 if __name__ == '__main__':
     dispatch = Dispatch()
     pass
+
 

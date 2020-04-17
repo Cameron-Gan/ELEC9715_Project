@@ -8,7 +8,9 @@ class Test(TestCase):
         assert True
 
 
+
 class TestPredispatch(TestCase):
+
 
     def test_predispatch_package(self):
         predispatch_package = Predispatch()
@@ -16,7 +18,6 @@ class TestPredispatch(TestCase):
         self.assertFalse(region_solution.empty)
         """"REGION_SOLUTION SHOULD HAVE 165 ROWS 109 COLUMNS"""
         self.assertEqual(region_solution.shape[1], 109)
-
 
 class TestDispatch(TestCase):
 
