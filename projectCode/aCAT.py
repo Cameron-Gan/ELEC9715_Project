@@ -5,7 +5,7 @@ from abc import ABC, abstractmethod
 import requests
 import pandas as pd
 from datetime import datetime, timedelta
-from helperFunctions import floor_ft
+from projectCode.helperFunctions import floor_ft
 
 class PackageInterface(ABC):
 
@@ -91,7 +91,7 @@ class Dispatch(PackageInterface):
         previous_24hrs = search_time - timedelta(hours=24)
         previous_24hrs_string = f'{previous_24hrs:%A},{previous_24hrs:%B}{previous_24hrs.day},{previous_24hrs:%Y}{previous_24hrs.month}:{previous_24hrs.minute}{previous_24hrs:%p}'
 
-        print(previous_24hrs_string)
+        # print(previous_24hrs_string)
 
         raw_text = requests.get(self.geturl())
         raw_text = raw_text.text.split(sep='<br>')
@@ -99,7 +99,7 @@ class Dispatch(PackageInterface):
         for index, line in enumerate(raw_text):
             # print(line)
             if re.search(previous_24hrs_string, re.sub('\s*', '', line)):
-                print(line)
+                # print(line)
                 index_of_start = index
                 break
 

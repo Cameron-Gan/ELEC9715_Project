@@ -1,5 +1,5 @@
 from abc import abstractmethod, ABC
-
+import pandas as pd
 
 class Appliance:
 
@@ -10,6 +10,14 @@ class Appliance:
         self.min_level = min_level
         self.ramp_up = ramp_up
         self.ramp_down = ramp_down
+
+    def print(self):
+        print('Max Load: '+str(self.max_load))
+        print('Maintain Load: '+str(self.maintain_load))
+        print('Max Level: '+str(self.max_level))
+        print('Min Level: '+str(self.min_level))
+        print('Ramp up: '+str(self.ramp_up))
+        print('Ramp down: '+str(self.ramp_down))
 
 class HotWater(Appliance):
 
