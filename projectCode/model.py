@@ -1,12 +1,11 @@
-from aCAT import Predispatch
-from helperFunctions import convert_to_datetime
-from appliance import Appliance
+from projectCode.aCAT import Predispatch
+from projectCode.helperFunctions import convert_to_datetime
+from projectCode.appliance import Appliance
 import pandas as pd
 import numpy as np
 from sys import float_info
-from datetime import datetime, timedelta
+from datetime import timedelta
 import matplotlib.pyplot as plt
-import dateutil
 
 
 # each time step is make up of all these nodes which house the total cost up to that point
@@ -37,11 +36,12 @@ class Model:
         self.max_level = int(self.appliance.max_level * self.n)
         self.min_level = int(self.appliance.min_level * self.n)
         self.model_table = self.init_model_table()
+        self.cheapest_path = None
         # self.ramp_up = int(app.ramp_up * (app.max_level / (app.max_level - app.min_level)))
         # self.ramp_down = int(app.ramp_down * (app.max_level / (app.max_level - app.min_level)))
 
     def extract_forecast_price(self):
-        price = self.predispatch.loc[:,['PERIODID', 'RRP']]
+        price = self.predispatch.loc[:,['PERIODID', 'RRP']].copy()
         price['RRP'] = price['RRP'].astype(float)
         price.PERIODID = price['PERIODID'].astype(int).apply(convert_to_datetime)
         price.set_index('PERIODID', inplace=True)
@@ -143,7 +143,7 @@ class Model:
 
     def run_model(self):
         for i in range(1, self.n_time_steps):
-            # print(i)
+            # print(self.forecast_price.index[i])
             self.model_time_step(self.forecast_price.index[i], i)
 
     def get_cheapest_path(self):
@@ -161,20 +161,44 @@ class Model:
             if m < min and len(mnode.path) >= self.n_time_steps - 1:
                 min_index = i
                 min = m
+        self.cheapest_path = self.model_table[self.n_time_steps - 1][min_index]
         return self.model_table[self.n_time_steps - 1][min_index], min_index
 
 
     # TODO return a path to a certain percentage
-    def get_cheapest_path_to_level(self, p):
-        self.appliance
-        pass
+    def get_cheapest_path_to_level(self, p_top, p_bottom):
+        sub_table = []
+        for i in range(0, self.n):
+            time_step = self.model_table[self.n_time_steps - 1][i]
+            end_index = len(time_step.state_value) - 1
+
+            if end_index >= self.n_time_steps - 1 and (time_step.state_value[end_index] >= p_bottom and time_step.state_value[end_index] <= p_top):
+                sub_table.append(time_step)
+
+        min = float_info.max
+        min_index = 0
+        for i in range(0, len(sub_table) - 1):
+            mnode = sub_table[i]
+            m = mnode.totalCost
+            # print(i)
+            # print(m)
+            # print(len(mnode.path))
+            # print(mnode.path)
+            # if(len(mnode.state_value) > 0):
+            #     print(mnode.state_value[-1])
+            if m < min and len(mnode.path) >= self.n_time_steps - 1:
+                min_index = i
+                min = m
+        self.cheapest_path = sub_table[min_index]
+        return sub_table[min_index], min_index
+
 
 
 
 
 if __name__ == '__main__':
-    appliance = Appliance(100, 50, 1, 0.5, 0.154, 0.225)
-    model = Model(0.7, 1000, appliance, 'NSW1')
+    appliance = Appliance(100, 50, 1, 0.5, 0.154, 0.001)
+    model = Model(0.4, 1000, appliance, 'VIC1')
     print(len(model.model_table[0]))
     print(model.ramp_down)
     print(model.min_level)
@@ -183,7 +207,7 @@ if __name__ == '__main__':
     # model.model_time_step(model.forecast_price.index[1], 1)
 
     model.run_model()
-    cheapest_path_node, cheapest_index = model.get_cheapest_path()
+    cheapest_path_node, cheapest_index = model.get_cheapest_path_to_level(1,0.8)
     print("cheapest"+str(cheapest_index))
     print(model.n_time_steps)
     timesteps = model.time_steps
