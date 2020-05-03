@@ -3,14 +3,13 @@ import pandas as pd
 import seaborn as sns
 import matplotlib.pyplot as plt
 import matplotlib.dates as mdates
+import matplotlib.gridspec as gridspec
 from projectCode.helperFunctions import convert_to_datetime
 
 sns.set_style("darkgrid")
 
 #Color palatte
 blue, red = sns.color_palette("muted", 2)
-locator = mdates.AutoDateLocator()
-formatter = mdates.ConciseDateFormatter(locator)
 
 def chart_prices(state):
     forecast = Predispatch()
@@ -18,28 +17,50 @@ def chart_prices(state):
     forecast_prices = forecast[forecast['REGIONID'] == state]
     x_f = forecast_prices['PERIODID'].astype(int)
     x_f = x_f.apply(convert_to_datetime)
+    # print(type(x_f))
+
     y_f = forecast_prices['RRP'].astype(float)
 
     dispatch = Dispatch()
     dispatch = dispatch.get_table("REGION_PRICE")
     dispatch_price = dispatch[dispatch["REGIONID"] == state]
-    x_d = pd.to_datetime(dispatch_price['SETTLEMENTDATE'], format='\"%Y/%m/%d %H:%M:%S\"', exact=False)
+    x_d = pd.to_datetime(dispatch_price['SETTLEMENTDATE'], format='\"%Y/%m/%d %H:%M:%S\"')
+
+
     # print(x_d)
     y_d = dispatch_price['RRP'].astype(float)
 
     fig, (past_ax, forecast_ax) = plt.subplots(1, 2, figsize=(17,9))
+    plt.subplots_adjust(wspace=0, hspace=0)
+
     past_ax.set_title('Past Prices')
     past_ax.plot(x_d, y_d, color=blue, lw=3)
     past_ax.fill_between(x_d, 0, y_d, alpha=.3, color=blue)
-    past_ax.xaxis.set_major_locator(locator)
-    past_ax.xaxis.set_major_formatter(formatter)
+    locator1 = mdates.AutoDateLocator()
+    formatter1 = mdates.ConciseDateFormatter(locator1)
+    past_ax.xaxis.set_major_locator(locator1)
+    past_ax.xaxis.set_major_formatter(formatter1)
+
 
     forecast_ax.set_title('Forecast Prices')
     # forecast_ax = past_ax.twiny()
     forecast_ax.plot(x_f, y_f, color=red, lw=3)
     forecast_ax.fill_between(x_f, 0, y_f, alpha=.3, color=red)
-    forecast_ax.xaxis.set_major_locator(locator)
-    forecast_ax.xaxis.set_major_formatter(formatter)
+    locator2 = mdates.AutoDateLocator()
+    formatter2 = mdates.ConciseDateFormatter(locator2)
+    forecast_ax.xaxis.set_major_locator(locator2)
+    forecast_ax.xaxis.set_major_formatter(formatter2)
+
+    max_y = max([y_f.max(), y_d.max()])
+    min_y = min([y_f.min(), y_d.min()])
+
+    forecast_ax.set_ylim([min_y * 0.9, max_y * 1.1])
+    past_ax.set_ylim([min_y * 0.9, max_y * 1.1])
+    forecast_ax.get_yaxis().set_ticklabels([])
+
+    forecast_ax.set_xlim(left=x_f.min())
+    past_ax.set_xlim(right=x_d.max())
+
 
     fig.suptitle('Wholesale Prices')
     fig.tight_layout()
@@ -64,15 +85,31 @@ def chart_demand(state):
     past_ax.set_title('Past Demand')
     past_ax.plot(x_d, y_d, color=blue, lw=3)
     past_ax.fill_between(x_d, 0, y_d, alpha=.3, color=blue)
-    past_ax.xaxis.set_major_locator(locator)
-    past_ax.xaxis.set_major_formatter(formatter)
+    locator1 = mdates.AutoDateLocator()
+    formatter1 = mdates.ConciseDateFormatter(locator1)
+    past_ax.xaxis.set_major_locator(locator1)
+    past_ax.xaxis.set_major_formatter(formatter1)
+
 
     forecast_ax.set_title('Forecast Demand')
     # forecast_ax = past_ax.twiny()
     forecast_ax.plot(x_f, y_f, color=red, lw=3)
     forecast_ax.fill_between(x_f, 0, y_f, alpha=.3, color=red)
-    forecast_ax.xaxis.set_major_locator(locator)
-    forecast_ax.xaxis.set_major_formatter(formatter)
+    locator2 = mdates.AutoDateLocator()
+    formatter2 = mdates.ConciseDateFormatter(locator2)
+    forecast_ax.xaxis.set_major_locator(locator2)
+    forecast_ax.xaxis.set_major_formatter(formatter2)
+
+    max_y = max([y_f.max(), y_d.max()])
+    min_y = min([y_f.min(), y_d.min()])
+
+    forecast_ax.set_ylim([min_y * 0.9, max_y * 1.1])
+    past_ax.set_ylim([min_y * 0.9, max_y * 1.1])
+    forecast_ax.get_yaxis().set_ticklabels([])
+
+    forecast_ax.set_xlim(left=x_f.min())
+    past_ax.set_xlim(right=x_d.max())
+
 
     fig.suptitle('Total Demand')
     fig.tight_layout()
