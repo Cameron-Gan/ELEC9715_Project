@@ -3,4 +3,4 @@
 
 
 To access the load scheduling demo open the file named finalNotebook <br>
-A brief run through of the code is available in the overviewSoftware file
+A brief run through of the code is available in the softwareOverView file
