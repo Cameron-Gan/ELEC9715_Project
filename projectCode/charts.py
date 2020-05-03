@@ -18,12 +18,14 @@ def chart_prices(state):
     x_f = forecast_prices['PERIODID'].astype(int)
     x_f = x_f.apply(convert_to_datetime)
     # print(type(x_f))
+
     y_f = forecast_prices['RRP'].astype(float)
 
     dispatch = Dispatch()
     dispatch = dispatch.get_table("REGION_PRICE")
     dispatch_price = dispatch[dispatch["REGIONID"] == state]
     x_d = pd.to_datetime(dispatch_price['SETTLEMENTDATE'], format='\"%Y/%m/%d %H:%M:%S\"')
+
 
     # print(x_d)
     y_d = dispatch_price['RRP'].astype(float)
@@ -38,6 +40,7 @@ def chart_prices(state):
     formatter1 = mdates.ConciseDateFormatter(locator1)
     past_ax.xaxis.set_major_locator(locator1)
     past_ax.xaxis.set_major_formatter(formatter1)
+
 
     forecast_ax.set_title('Forecast Prices')
     # forecast_ax = past_ax.twiny()
@@ -57,6 +60,7 @@ def chart_prices(state):
 
     forecast_ax.set_xlim(left=x_f.min())
     past_ax.set_xlim(right=x_d.max())
+
 
     fig.suptitle('Wholesale Prices')
     fig.tight_layout()
@@ -86,6 +90,7 @@ def chart_demand(state):
     past_ax.xaxis.set_major_locator(locator1)
     past_ax.xaxis.set_major_formatter(formatter1)
 
+
     forecast_ax.set_title('Forecast Demand')
     # forecast_ax = past_ax.twiny()
     forecast_ax.plot(x_f, y_f, color=red, lw=3)
@@ -104,6 +109,7 @@ def chart_demand(state):
 
     forecast_ax.set_xlim(left=x_f.min())
     past_ax.set_xlim(right=x_d.max())
+
 
     fig.suptitle('Total Demand')
     fig.tight_layout()
